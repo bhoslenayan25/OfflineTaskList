@@ -1,6 +1,7 @@
 package com.nayan.task.offlinetasklist;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.nayan.task.offlinetasklist.database.DataBaseAdapter;
+import com.nayan.task.offlinetasklist.database.TaskList;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,9 +32,12 @@ public class MainActivity extends AppCompatActivity {
     EditText editTaskName;
     Button btnAddTask;
 
+    DataBaseAdapter dba;
+
     ProgressDialog progressDialog;
 
     String API_URL = "";
+    String API_PARAMETER = "task_name";
     String DATA = "";
 
     @Override
@@ -52,10 +59,19 @@ public class MainActivity extends AppCompatActivity {
                 String taskName = editTaskName.getText().toString().trim();
                 if(taskName.length() > 0){
                     try {
-                        HashMap<String,String> hashMap = new HashMap<String,String>();
-                        hashMap.put("task_name",taskName);
-                        DATA = getPostDataString(hashMap);
-                        new LoadFromServer().execute();
+                        if(MyApplication.isNetworkConnected()) {
+                            HashMap<String, String> hashMap = new HashMap<String, String>();
+                            hashMap.put(API_PARAMETER, taskName);
+                            DATA = getPostDataString(hashMap);
+                            new LoadFromServer().execute();
+                        }else{
+                            ContentValues cv = new ContentValues();
+                            cv.put(TaskList.KEY_NAME,taskName);
+                            dba.open();
+                            TaskList.insertdata(cv);
+                            dba.close();
+                            Toast.makeText(MainActivity.this,"Task added successfully",Toast.LENGTH_LONG).show();
+                        }
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -120,8 +136,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
             progressDialog.dismiss();
-
-
+            Toast.makeText(MainActivity.this,"Task added successfully",Toast.LENGTH_LONG).show();
         }
     }
 

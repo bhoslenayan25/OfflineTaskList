@@ -44,7 +44,7 @@ public class TaskList {
         }
     }
 
-    public long insertdata(ContentValues contentValues) {
+    public static long insertdata(ContentValues contentValues) {
         long result = DataBaseAdapter.ourDatabase.insert(DATABASE_TABLE, null,
                 contentValues);
         return result;

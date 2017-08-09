@@ -37,6 +37,7 @@ public class SyncData extends IntentService {
      */
 
     String API_URL = "";
+    String API_PARAMETER = "task_name";
 
     DataBaseAdapter dba;
 
@@ -54,7 +55,7 @@ public class SyncData extends IntentService {
             Cursor cursor = TaskList.getData();
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    hashMap.put("task_name",cursor.getString(1));
+                    hashMap.put(API_PARAMETER,cursor.getString(1));
                 }
             }
             cursor.close();
