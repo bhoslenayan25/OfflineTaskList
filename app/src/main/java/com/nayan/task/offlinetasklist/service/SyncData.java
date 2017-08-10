@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.nayan.task.offlinetasklist.database.DataBaseAdapter;
 import com.nayan.task.offlinetasklist.database.TaskList;
@@ -33,11 +34,11 @@ public class SyncData extends IntentService {
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
-     * @param name Used to name the worker thread, important only for debugging.
+     * @param SyncData.class.getName() Used to name the worker thread, important only for debugging.
      */
 
-    String API_URL = "";
-    String API_PARAMETER = "task_name";
+    String API_URL = "http://hungrybelly.000webhostapp.com/app/menu/list";//api end points url
+    String API_PARAMETER = "task_name";//api parameter
 
     DataBaseAdapter dba;
 
@@ -49,7 +50,7 @@ public class SyncData extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
 
         try {
-            dba = new DataBaseAdapter(getApplicationContext());
+            dba = new DataBaseAdapter(this);
             HashMap<String,String> hashMap = new HashMap<String,String>();
             dba.open();
             Cursor cursor = TaskList.getData();
@@ -61,12 +62,13 @@ public class SyncData extends IntentService {
             cursor.close();
             dba.close();
 
-            if(pushToServer(getPostDataString(hashMap))){
-                dba.open();
-                TaskList.clearTable();
-                dba.close();
+            if(hashMap != null) {
+                if (pushToServer(getPostDataString(hashMap))) {
+                    dba.open();
+                    TaskList.clearTable();
+                    dba.close();
+                }
             }
-
             this.stopSelf();
 
         }catch (Exception e){
@@ -77,6 +79,8 @@ public class SyncData extends IntentService {
 
 
     private boolean pushToServer(String data){
+
+        Log.w("SyncData",data);
 
         boolean status = false;
         try {

@@ -2,6 +2,7 @@ package com.nayan.task.offlinetasklist;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -36,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressDialog progressDialog;
 
-    String API_URL = "";
-    String API_PARAMETER = "task_name";
+    String API_URL = "http://hungrybelly.000webhostapp.com/app/menu/list";//api end points url
+    String API_PARAMETER = "task_name";//api parameter
     String DATA = "";
 
     @Override
@@ -52,6 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
         editTaskName = (EditText) findViewById(R.id.editTaskName);
         btnAddTask = (Button) findViewById(R.id.btnAddTask);
+
+        dba = new DataBaseAdapter(this);
+
+        //register broadcast receiver
+        IntentFilter filter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        OfflineBroadcast myReceiver = new OfflineBroadcast();
+        registerReceiver(myReceiver, filter);
 
         btnAddTask.setOnClickListener(new View.OnClickListener() {
             @Override
