@@ -51,18 +51,25 @@ public class SyncData extends IntentService {
 
         try {
             dba = new DataBaseAdapter(this);
-            HashMap<String,String> hashMap = new HashMap<String,String>();
+            String data = "";
             dba.open();
             Cursor cursor = TaskList.getData();
             if (cursor.getCount() > 0) {
-                while (cursor.moveToNext()) {
-                    hashMap.put(API_PARAMETER,cursor.getString(1));
+                for(int i = 0;i<cursor.getCount();i++) {
+                    if(i == 0 || i == cursor.getCount() - 1) {
+                        data = data + cursor.getString(i);
+                    }else {
+                        data = data + cursor.getString(i) + ",";
+                    }
                 }
             }
             cursor.close();
             dba.close();
 
-            if(hashMap != null) {
+            if(data != "") {
+                HashMap<String,String> hashMap = new HashMap<>();
+                hashMap.put(API_PARAMETER,data);
+
                 if (pushToServer(getPostDataString(hashMap))) {
                     dba.open();
                     TaskList.clearTable();
